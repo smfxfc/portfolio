@@ -1,15 +1,18 @@
 #! python3
 # portfolio.py - Pull stock data from an API and update portfolio tracker accordingly
 # the script will run once a day after market close in order to capture and save a snapshot of the portfolio's value on any date whilst script was active 
-
+import sys
 from datetime import datetime
 
-import text_myself
 import openpyxl
 import yfinance as yf
 
 portfolio = 'portfolio.xlsx'
 portfolio_history = 'portfolio_history.xlsx'
+
+if datetime.today().weekday() in range(5,6):
+    print("The market is closed on weekends. Exiting program.")
+    sys.exit()
 
 wb = openpyxl.load_workbook(portfolio)
 destination = openpyxl.load_workbook(portfolio_history)
@@ -35,11 +38,13 @@ for row_num in range(2, current.max_row): # skipping first row because it's the 
     current.cell(row=row_num, column=9).value = (current.cell(row=row_num, column=8).value - current.cell(row=row_num, column=6).value)
     current.cell(row=row_num, column=10).value = current.cell(row=row_num, column=9).value / current.cell(row=row_num, column=6).value * 100
 
-# calcate today's portfolio +-  
+# calculate today's portfolio +-  
+print("Calculating today's gain/loss...")
 current.cell(row=7, column=8).value = current.cell(row=2, column=8).value + current.cell(row=3, column=8).value + current.cell(row=4, column=8).value + current.cell(row=5, column=8).value + current.cell(row=6, column=8).value
 current.cell(row=1, column=13).value = round(float(current.cell(row=7, column=8).value) - float(current.cell(row=2, column=13).value),2)
 
-# create tab in portfolio_history.xlsx file to store the day's portfolio value, naming the tabs as the current date
+# create tab in portfolio_history.xlsx file to store the day's portfolio value,
+# naming the tabs as the current date
 destination.create_sheet(datetime.today().strftime('%y-%m-%d'))
 destination.save(portfolio_history)
 export_tab = destination[datetime.today().strftime('%y-%m-%d')]
@@ -53,8 +58,6 @@ for i in range(1, mr + 1):
         c = current.cell(row = i, column = j)
         export_tab.cell(row = i, column = j).value = c.value
 
+print("Data copied to portfolio history file. Saving files...")
 wb.save(portfolio)
 destination.save(portfolio_history)
-
-
-text_myself.textmyself("Today's portfolio movement: $" + str(current.cell(row=1, column=13).value)) # TODO: round the value to 2 decemals

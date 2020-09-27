@@ -1,4 +1,3 @@
 openpyxl
 yfinance
-twilio
 matplotlib

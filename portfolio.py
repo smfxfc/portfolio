@@ -11,7 +11,7 @@ import yfinance as yf
 portfolio = 'portfolio.xlsx'
 portfolio_history = 'portfolio_history.xlsx'
 
-if datetime.today().weekday() in range(5,6):
+if datetime.today().weekday() in range(5,7):
     print("The market is closed on weekends. Exiting program.")
     sys.exit()
 
